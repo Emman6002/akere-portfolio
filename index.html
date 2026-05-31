@@ -338,8 +338,9 @@ const catLabels = {social:'Social Media',church:'Church',event:'Event'};
 let currentCat = 'social';
 let isAdmin = false;
 let pendingImageSrc = null;
+let pendingFile = null;
 
-// Load from localStorage
+// Load designs from localStorage (Cloudinary URLs are stored here)
 function loadData(){
   ['social','church','event'].forEach(c=>{
     const saved = localStorage.getItem('portfolio_'+c);
@@ -354,6 +355,7 @@ function saveData(){
 }
 
 loadData();
+updateCounts();
 
 function goHome(){
   showPage('home');
@@ -450,6 +452,7 @@ function updateSlideshows(){
 // ADD MODAL
 function openAddModal(){
   pendingImageSrc = null;
+  pendingFile = null;
   document.getElementById('design-title').value = '';
   document.getElementById('design-desc').value = '';
   document.getElementById('img-preview').style.display = 'none';
@@ -464,6 +467,7 @@ function closeAddModal(){
 document.getElementById('file-input').onchange = function(e){
   const file = e.target.files[0];
   if(!file) return;
+  pendingFile = file;
   const r = new FileReader();
   r.onload = ev=>{
     pendingImageSrc = ev.target.result;
@@ -482,10 +486,23 @@ function saveDesign(){
   if(!pendingImageSrc){alert('Please upload an image first.');return;}
   const title = document.getElementById('design-title').value.trim() || 'Untitled';
   const desc = document.getElementById('design-desc').value.trim() || '';
-  cats[currentCat].push({src:pendingImageSrc, title, desc});
-  saveData();
-  renderGrid();
-  updateCounts();
+  
+  // Build the new entry to add to designs.json
+  const entry = {src: 'images/' + pendingFileName, title, desc};
+  const previewCat = [...cats[currentCat], entry];
+  
+  const instructions = `To save this design permanently:
+
+1. Upload your image to GitHub repo in an "images" folder
+   File name: ${pendingFileName}
+
+2. Then edit designs.json and add this to the "${currentCat}" array:
+
+${JSON.stringify(entry, null, 2)}
+
+Copy this and send it to Claude to update your designs.json!`;
+  
+  alert(instructions);
   closeAddModal();
 }
 
@@ -542,29 +559,14 @@ function doLogout(){
   document.getElementById('upload-photo-btn').style.display = 'none';
 }
 
-// Profile photo
-const savedPhoto = localStorage.getItem('profile_photo');
-if(savedPhoto){
-  document.getElementById('profile-photo-img').src = savedPhoto;
-  document.getElementById('profile-photo-img').style.display = 'block';
-  document.getElementById('profile-initials') && (document.querySelector('.profile-initials').style.display = 'none');
-}
-
-document.getElementById('photo-input').onchange = function(e){
-  const file = e.target.files[0];
-  if(!file) return;
-  const r = new FileReader();
-  r.onload = ev=>{
-    const src = ev.target.result;
-    localStorage.setItem('profile_photo', src);
-    const img = document.getElementById('profile-photo-img');
-    img.src = src;
-    img.style.display = 'block';
+// Profile photo — load from GitHub repo if exists
+fetch('photo.jpg').then(r => {
+  if(r.ok){
+    document.getElementById('profile-photo-img').src = 'photo.jpg?t='+Date.now();
+    document.getElementById('profile-photo-img').style.display = 'block';
     document.querySelector('.profile-initials').style.display = 'none';
-  };
-  r.readAsDataURL(file);
-  this.value='';
-};
+  }
+}).catch(()=>{});
 
 document.getElementById('login-modal').onclick = function(e){
   if(e.target===this) this.classList.remove('open');
