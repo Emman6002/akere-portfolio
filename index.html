@@ -483,27 +483,43 @@ document.getElementById('file-input').onchange = function(e){
 document.getElementById('upload-area').onclick = ()=>document.getElementById('file-input').click();
 
 function saveDesign(){
-  if(!pendingImageSrc){alert('Please upload an image first.');return;}
+  if(!pendingFile){alert('Please select an image first.');return;}
   const title = document.getElementById('design-title').value.trim() || 'Untitled';
   const desc = document.getElementById('design-desc').value.trim() || '';
-  
-  // Build the new entry to add to designs.json
-  const entry = {src: 'images/' + pendingFileName, title, desc};
-  const previewCat = [...cats[currentCat], entry];
-  
-  const instructions = `To save this design permanently:
 
-1. Upload your image to GitHub repo in an "images" folder
-   File name: ${pendingFileName}
+  const saveBtn = document.querySelector('.modal-save');
+  saveBtn.textContent = 'Uploading...';
+  saveBtn.disabled = true;
 
-2. Then edit designs.json and add this to the "${currentCat}" array:
+  const formData = new FormData();
+  formData.append('image', pendingFile);
+  formData.append('key', '6ebf1d35c85a6af41993ec0523bb9d69');
 
-${JSON.stringify(entry, null, 2)}
-
-Copy this and send it to Claude to update your designs.json!`;
-  
-  alert(instructions);
-  closeAddModal();
+  fetch('https://api.imgbb.com/1/upload', {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    if(data.success && data.data && data.data.url){
+      cats[currentCat].push({src: data.data.url, title: title, desc: desc});
+      saveData();
+      renderGrid();
+      updateCounts();
+      closeAddModal();
+      alert('Design added!');
+    } else {
+      var errMsg = data.error ? data.error.message : JSON.stringify(data);
+      alert('Upload failed: ' + errMsg);
+      saveBtn.textContent = 'Save Design';
+      saveBtn.disabled = false;
+    }
+  })
+  .catch(function(e){
+    alert('Error: ' + e.message);
+    saveBtn.textContent = 'Save Design';
+    saveBtn.disabled = false;
+  });
 }
 
 function deleteDesign(i){
