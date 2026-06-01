@@ -518,7 +518,7 @@ function saveDesign(){
   .then(function(res){ return res.json(); })
   .then(function(data){
     if(data.success && data.data && data.data.url){
-      var imgUrl = data.data.image ? data.data.image.url : data.data.url;
+      var imgUrl = data.data.display_url || (data.data.image ? data.data.image.url : data.data.url);
       cats[currentCat].push({src: imgUrl, title: title, desc: desc});
       saveData();
       renderGrid();
