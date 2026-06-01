@@ -154,6 +154,36 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
   .designs-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 }
 </style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    databaseURL: "https://akere-portfolio-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.firebaseDB = db;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebaseOnValue = onValue;
+
+  // Load data from Firebase on startup
+  onValue(ref(db, 'designs'), (snapshot) => {
+    const data = snapshot.val();
+    if(data){
+      window.cats.social = data.social || [];
+      window.cats.church = data.church || [];
+      window.cats.event = data.event || [];
+    } else {
+      window.cats = {social:[], church:[], event:[]};
+    }
+    if(window.updateCounts) window.updateCounts();
+    if(window.currentCatOpen) window.renderGrid();
+  });
+</script>
 </head>
 <body>
 
@@ -333,25 +363,27 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 const ADMIN_PASSWORD = 'akere2026';
 // --------------------------------------
 
-const cats = {social:[],church:[],event:[]};
+window.cats = {social:[],church:[],event:[]};
+const cats = window.cats;
 const catLabels = {social:'Social Media',church:'Church',event:'Event'};
 let currentCat = 'social';
 let isAdmin = false;
 let pendingImageSrc = null;
 let pendingFile = null;
 
-// Load designs from localStorage (Cloudinary URLs are stored here)
+// Data is loaded via Firebase realtime listener above
 function loadData(){
-  ['social','church','event'].forEach(c=>{
-    const saved = localStorage.getItem('portfolio_'+c);
-    if(saved) cats[c] = JSON.parse(saved);
-  });
+  // Firebase handles loading
 }
 
 function saveData(){
-  ['social','church','event'].forEach(c=>{
-    localStorage.setItem('portfolio_'+c, JSON.stringify(cats[c]));
-  });
+  if(window.firebaseDB){
+    window.firebaseSet(window.firebaseRef(window.firebaseDB, 'designs'), {
+      social: cats.social,
+      church: cats.church,
+      event: cats.event
+    });
+  }
 }
 
 loadData();
@@ -368,7 +400,7 @@ function showPage(id){
   window.scrollTo(0,0);
 }
 
-function openCategory(cat){
+function openCategory(cat){ window.currentCatOpen = true;
   currentCat = cat;
   const name = catLabels[cat];
   const parts = name.split(' ');
@@ -381,7 +413,7 @@ function openCategory(cat){
   showPage('category');
 }
 
-function renderGrid(){
+window.renderGrid = function renderGrid(){
   const grid = document.getElementById('designs-grid');
   grid.className = 'designs-grid' + (isAdmin ? ' admin-mode' : '');
   const designs = cats[currentCat];
@@ -409,7 +441,7 @@ function renderGrid(){
   });
 }
 
-function updateCounts(){
+window.updateCounts = function updateCounts(){
   ['social','church','event'].forEach(c=>{
     const n = cats[c].length;
     document.getElementById(c+'-count').textContent = n+(n===1?' design':' designs');
