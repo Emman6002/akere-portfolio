@@ -471,6 +471,13 @@ function openAddModal(){
 
 function closeAddModal(){
   document.getElementById('add-modal').classList.remove('open');
+  var saveBtn = document.querySelector('.modal-save');
+  saveBtn.textContent = 'Save Design';
+  saveBtn.disabled = false;
+  pendingFile = null;
+  pendingImageSrc = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('upload-area').style.display = 'block';
 }
 
 document.getElementById('file-input').onchange = function(e){
@@ -511,7 +518,8 @@ function saveDesign(){
   .then(function(res){ return res.json(); })
   .then(function(data){
     if(data.success && data.data && data.data.url){
-      cats[currentCat].push({src: data.data.url, title: title, desc: desc});
+      var imgUrl = data.data.image ? data.data.image.url : data.data.url;
+      cats[currentCat].push({src: imgUrl, title: title, desc: desc});
       saveData();
       renderGrid();
       updateCounts();
