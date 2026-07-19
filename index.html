@@ -86,23 +86,43 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 .cat-page-hero h2{font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--blue);line-height:1.1}
 .cat-page-hero h2 em{font-style:italic;color:var(--pink)}
 .cat-page-hero p{color:var(--muted);font-size:0.88rem;margin-top:0.4rem}
+.breadcrumb{font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;letter-spacing:0.2px}
+.breadcrumb a{color:var(--pink);cursor:pointer;text-decoration:none;font-weight:500}
+.breadcrumb a:hover{text-decoration:underline}
 
 /* ADMIN ONLY */
 .admin-bar{display:none;padding:0 6% 1.5rem;max-width:1100px;margin:0 auto}
 .admin-bar.visible{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
 .add-design-btn{background:var(--pink);color:white;border:none;padding:0.72rem 1.5rem;border-radius:50px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem}
 .add-design-btn:hover{filter:brightness(0.9);transform:translateY(-1px)}
+.add-folder-btn{background:var(--blue)}
 .admin-badge{background:#1a2d5a;color:white;font-size:0.72rem;padding:4px 12px;border-radius:20px;letter-spacing:1px}
 
-.designs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;padding:0 6% 5rem;max-width:1100px;margin:0 auto}
-.design-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.07);transition:transform 0.25s,box-shadow 0.25s}
+.section-label{font-size:0.7rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:500;padding:0 6%;max-width:1100px;margin:0 auto 1rem}
+
+.designs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;padding:0 6% 3rem;max-width:1100px;margin:0 auto}
+.design-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.07);transition:transform 0.25s,box-shadow 0.25s;position:relative}
 .design-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(0,0,0,0.12)}
 .design-card-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer}
 .design-card-info{padding:1rem 1.1rem 1.1rem}
 .design-card-info h4{font-size:0.92rem;color:var(--blue);font-weight:500;margin-bottom:0.3rem}
 .design-card-info p{font-size:0.8rem;color:var(--muted);line-height:1.5}
-.design-card-delete{display:none;margin-top:0.75rem;background:none;border:1px solid #ffccd6;color:#e8567a;padding:4px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.design-card-delete{display:none;margin-top:0.75rem;margin-right:0.5rem;background:none;border:1px solid #ffccd6;color:#e8567a;padding:4px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif}
 .admin-mode .design-card-delete{display:inline-block}
+.design-card-move{display:none;margin-top:0.75rem;background:none;border:1px solid #cfd8ee;color:var(--blue);padding:4px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.admin-mode .design-card-move{display:inline-block}
+
+/* COLLECTION (folder) CARDS */
+.collection-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.07);transition:transform 0.25s,box-shadow 0.25s;cursor:pointer;position:relative}
+.collection-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(0,0,0,0.12)}
+.collection-thumb{aspect-ratio:3/4;background:linear-gradient(145deg,#f2ece3,#e5dcd0);display:flex;align-items:center;justify-content:center;font-size:2.6rem;position:relative;overflow:hidden}
+.collection-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.collection-thumb .folder-emoji{position:relative;z-index:1;opacity:0.5}
+.collection-card-info{padding:1rem 1.1rem 1.1rem}
+.collection-card-info h4{font-size:0.92rem;color:var(--blue);font-weight:500;margin-bottom:0.3rem}
+.collection-card-info p{font-size:0.8rem;color:var(--muted)}
+.collection-card-delete{display:none;margin-top:0.75rem;background:none;border:1px solid #ffccd6;color:#e8567a;padding:4px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;position:relative;z-index:2}
+.admin-mode .collection-card-delete{display:inline-block}
 
 .empty-state{grid-column:1/-1;text-align:center;padding:5rem 1rem;color:var(--muted)}
 .empty-icon{font-size:3rem;margin-bottom:1rem;opacity:0.25}
@@ -113,8 +133,8 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 .modal{background:white;border-radius:20px;padding:2rem;max-width:480px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,0.3)}
 .modal h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--blue);margin-bottom:1.5rem}
 .modal label{display:block;font-size:0.78rem;font-weight:500;color:var(--muted);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.5px}
-.modal input[type=text],.modal textarea{width:100%;border:1.5px solid #e8e0d8;border-radius:10px;padding:0.65rem 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1a1a1a;margin-bottom:1.1rem;transition:border-color 0.2s}
-.modal input[type=text]:focus,.modal textarea:focus{outline:none;border-color:var(--pink)}
+.modal input[type=text],.modal textarea,.modal select{width:100%;border:1.5px solid #e8e0d8;border-radius:10px;padding:0.65rem 0.9rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:#1a1a1a;margin-bottom:1.1rem;transition:border-color 0.2s;background:white}
+.modal input[type=text]:focus,.modal textarea:focus,.modal select:focus{outline:none;border-color:var(--pink)}
 .modal textarea{height:80px;resize:vertical}
 .modal-img-preview{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;margin-bottom:1.1rem;display:none}
 .modal-upload-area{border:2px dashed #e8e0d8;border-radius:10px;padding:2rem;text-align:center;cursor:pointer;margin-bottom:1.1rem;transition:border-color 0.2s,background 0.2s;color:var(--muted);font-size:0.88rem}
@@ -183,6 +203,32 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeAddModal()">Cancel</button>
       <button class="modal-save" onclick="saveDesign()">Save Design</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD COLLECTION MODAL -->
+<div class="modal-overlay" id="add-collection-modal">
+  <div class="modal">
+    <h3>New Collection</h3>
+    <label>Collection Name</label>
+    <input type="text" id="collection-name" placeholder="e.g. Akure Hiring Hub" onkeydown="if(event.key==='Enter')saveCollection()">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeAddCollectionModal()">Cancel</button>
+      <button class="modal-save" onclick="saveCollection()">Create Collection</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOVE DESIGN MODAL -->
+<div class="modal-overlay" id="move-modal">
+  <div class="modal">
+    <h3>Move Design</h3>
+    <label>Move to</label>
+    <select id="move-target"></select>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeMoveModal()">Cancel</button>
+      <button class="modal-save" onclick="doMove()">Move</button>
     </div>
   </div>
 </div>
@@ -305,7 +351,7 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 <!-- ===== CATEGORY PAGE ===== -->
 <div class="page" id="page-category">
   <nav>
-    <button class="back-btn" onclick="goHome()">← Back</button>
+    <button class="back-btn" onclick="handleBack()">← Back</button>
     <div class="logo" onclick="goHome()">Akere<span>.</span></div>
     <div style="width:80px;display:flex;justify-content:flex-end">
       <span class="admin-badge" id="admin-badge" style="display:none">Admin</span>
@@ -314,16 +360,18 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 
   <div class="cat-page-hero">
     <div>
+      <div class="breadcrumb" id="cat-breadcrumb"></div>
       <h2 id="cat-title">Social <em>Media</em></h2>
       <p id="cat-subtitle">0 designs</p>
     </div>
   </div>
 
-  <div class="admin-bar" id="admin-bar">
-    <button class="add-design-btn" onclick="openAddModal()">+ Add Design</button>
-    <span style="font-size:0.8rem;color:var(--muted)">You are in admin mode — only you can see this bar.</span>
-  </div>
+  <div class="admin-bar" id="admin-bar"></div>
 
+  <div id="collections-label" class="section-label" style="display:none">Collections</div>
+  <div class="designs-grid" id="collections-grid"></div>
+
+  <div id="designs-label" class="section-label" style="display:none">Designs</div>
   <div class="designs-grid" id="designs-grid"></div>
 
   <footer><p>© 2026 Akere Oluwatimilehin Emmanuel — Graphic Designer, Nigeria</p></footer>
@@ -334,9 +382,15 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 const ADMIN_PASSWORD = 'akere2026';
 // --------------------------------------
 
-const cats = {social:[],church:[],event:[]};
+// Data model per category: { loose: [designs...], collections: { id: {name, designs:[...]} } }
+const cats = {
+  social: {loose:[], collections:{}},
+  church: {loose:[], collections:{}},
+  event:  {loose:[], collections:{}}
+};
 const catLabels = {social:'Social Media',church:'Church',event:'Event'};
 let currentCat = 'social';
+let currentCollection = null; // null = category root view
 let isAdmin = false;
 let pendingImageSrc = null;
 let pendingFile = null;
@@ -346,11 +400,20 @@ function loadData(){
   .then(function(res){ return res.json(); })
   .then(function(data){
     if(data){
-      cats.social = data.social || [];
-      cats.church = data.church || [];
-      cats.event = data.event || [];
+      ['social','church','event'].forEach(function(c){
+        const d = data[c];
+        if(Array.isArray(d)){
+          // migrate old flat-array format into the new structure
+          cats[c] = {loose: d, collections: {}};
+        } else if(d && typeof d === 'object'){
+          cats[c] = {loose: d.loose || [], collections: d.collections || {}};
+        }
+      });
     }
     updateCounts();
+    if(document.getElementById('page-category').classList.contains('active')){
+      renderCategoryPage();
+    }
   })
   .catch(function(e){ console.log('Load error:', e); });
 }
@@ -359,7 +422,7 @@ function saveData(){
   fetch('https://akere-portfolio-default-rtdb.firebaseio.com/designs.json', {
     method: 'PUT',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({social: cats.social, church: cats.church, event: cats.event})
+    body: JSON.stringify(cats)
   }).catch(function(e){ console.log('Save error:', e); });
 }
 
@@ -371,6 +434,15 @@ function goHome(){
   updateCounts();
 }
 
+function handleBack(){
+  if(currentCollection !== null){
+    currentCollection = null;
+    renderCategoryPage();
+  } else {
+    goHome();
+  }
+}
+
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -379,48 +451,161 @@ function showPage(id){
 
 function openCategory(cat){
   currentCat = cat;
-  const name = catLabels[cat];
-  const parts = name.split(' ');
-  document.getElementById('cat-title').innerHTML = parts.length>1
-    ? parts[0]+' <em>'+parts.slice(1).join(' ')+'</em>'
-    : '<em>'+name+'</em>';
-  document.getElementById('admin-bar').classList.toggle('visible', isAdmin);
-  document.getElementById('admin-badge').style.display = isAdmin ? 'inline-block' : 'none';
-  renderGrid();
+  currentCollection = null;
+  renderCategoryPage();
   showPage('category');
 }
 
-function renderGrid(){
+function openCollection(id){
+  currentCollection = id;
+  renderCategoryPage();
+}
+
+// ---- Helpers over the nested data ----
+function allDesignsInCategory(cat){
+  const c = cats[cat];
+  let all = c.loose.slice();
+  Object.values(c.collections).forEach(function(col){ all = all.concat(col.designs); });
+  return all;
+}
+
+function categoryTotal(cat){
+  return allDesignsInCategory(cat).length;
+}
+
+// ---- Rendering ----
+function renderCategoryPage(){
+  const name = catLabels[currentCat];
+  const parts = name.split(' ');
+  const titleHtml = parts.length>1 ? parts[0]+' <em>'+parts.slice(1).join(' ')+'</em>' : '<em>'+name+'</em>';
+  const admin = isAdmin;
+  document.getElementById('admin-badge').style.display = admin ? 'inline-block' : 'none';
+
+  const breadcrumb = document.getElementById('cat-breadcrumb');
+  const adminBar = document.getElementById('admin-bar');
+  const collectionsLabel = document.getElementById('collections-label');
+  const collectionsGrid = document.getElementById('collections-grid');
+  const designsLabel = document.getElementById('designs-label');
+
+  if(currentCollection === null){
+    // ROOT VIEW: show collections + loose designs
+    document.getElementById('cat-title').innerHTML = titleHtml;
+    breadcrumb.innerHTML = '';
+    const total = categoryTotal(currentCat);
+    document.getElementById('cat-subtitle').textContent = total + (total===1?' design':' designs');
+
+    adminBar.classList.toggle('visible', admin);
+    adminBar.innerHTML = admin ? '<button class="add-design-btn" onclick="openAddModal()">+ Add Design</button>' +
+      '<button class="add-design-btn add-folder-btn" onclick="openAddCollectionModal()">+ New Collection</button>' +
+      '<span style="font-size:0.8rem;color:var(--muted)">You are in admin mode — only you can see this bar.</span>' : '';
+
+    const col = cats[currentCat];
+    const ids = Object.keys(col.collections);
+
+    if(ids.length === 0){
+      collectionsLabel.style.display = 'none';
+      collectionsGrid.style.display = 'none';
+      collectionsGrid.innerHTML = '';
+    } else {
+      collectionsLabel.style.display = 'block';
+      collectionsGrid.style.display = 'grid';
+      collectionsGrid.innerHTML = '';
+      ids.forEach(function(id){
+        const c = col.collections[id];
+        const card = document.createElement('div');
+        card.className = 'collection-card' + (admin ? ' admin-mode' : '');
+        const cover = c.designs.length ? '<img src="'+c.designs[0].src+'" alt="">' : '<span class="folder-emoji">📁</span>';
+        card.innerHTML = '<div class="collection-thumb">'+cover+'</div>' +
+          '<div class="collection-card-info">' +
+          '<h4>'+escapeHtml(c.name)+'</h4>' +
+          '<p>'+c.designs.length+(c.designs.length===1?' design':' designs')+'</p>' +
+          '<button class="collection-card-delete" onclick="deleteCollection(event,\''+id+'\')">Remove collection</button>' +
+          '</div>';
+        card.addEventListener('click', function(e){
+          if(e.target.classList.contains('collection-card-delete')) return;
+          openCollection(id);
+        });
+        collectionsGrid.appendChild(card);
+      });
+    }
+
+    designsLabel.style.display = (ids.length > 0) ? 'block' : 'none';
+    if(designsLabel.style.display === 'block'){ designsLabel.textContent = 'Designs'; }
+    renderDesignsGrid(col.loose, false);
+
+  } else {
+    // COLLECTION VIEW: show only that collection's designs
+    const collection = cats[currentCat].collections[currentCollection];
+    if(!collection){ currentCollection = null; renderCategoryPage(); return; }
+
+    document.getElementById('cat-title').textContent = collection.name;
+    breadcrumb.innerHTML = '<a onclick="handleBack()">'+name+'</a> / '+escapeHtml(collection.name);
+    const n = collection.designs.length;
+    document.getElementById('cat-subtitle').textContent = n + (n===1?' design':' designs');
+
+    adminBar.classList.toggle('visible', admin);
+    adminBar.innerHTML = admin ? '<button class="add-design-btn" onclick="openAddModal()">+ Add Design</button>' +
+      '<span style="font-size:0.8rem;color:var(--muted)">You are in admin mode — only you can see this bar.</span>' : '';
+
+    collectionsLabel.style.display = 'none';
+    collectionsGrid.style.display = 'none';
+    collectionsGrid.innerHTML = '';
+    designsLabel.style.display = 'none';
+
+    renderDesignsGrid(collection.designs, true);
+  }
+}
+
+function renderDesignsGrid(designs, inCollection){
   const grid = document.getElementById('designs-grid');
   grid.className = 'designs-grid' + (isAdmin ? ' admin-mode' : '');
-  const designs = cats[currentCat];
-  const n = designs.length;
-  document.getElementById('cat-subtitle').textContent = n + (n===1?' design':' designs');
 
-  if(n===0){
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🖼</div><p>${isAdmin ? 'No designs yet — click <strong>+ Add Design</strong> to upload your work.' : 'No designs in this category yet.'}</p></div>`;
+  const nothingAtAll = designs.length === 0 && (currentCollection !== null || Object.keys(cats[currentCat].collections).length === 0);
+
+  if(designs.length === 0){
+    if(currentCollection !== null){
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🖼</div><p>' +
+        (isAdmin ? 'No designs yet — click <strong>+ Add Design</strong> to upload your work.' : 'No designs in this collection yet.') +
+        '</p></div>';
+    } else if(Object.keys(cats[currentCat].collections).length === 0){
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🖼</div><p>' +
+        (isAdmin ? 'No designs yet — click <strong>+ Add Design</strong> or <strong>+ New Collection</strong> to get started.' : 'No designs in this category yet.') +
+        '</p></div>';
+    } else {
+      grid.innerHTML = '';
+    }
     return;
   }
 
   grid.innerHTML = '';
-  designs.forEach((item,i)=>{
-    const card = document.createElement('div');
-    card.className = 'design-card';
-    card.innerHTML = `
-      <img class="design-card-img" src="${item.src}" alt="${item.title}">
-      <div class="design-card-info">
-        <h4>${item.title}</h4>
-        <p>${item.desc}</p>
-        <button class="design-card-delete" onclick="deleteDesign(${i})">Remove</button>
-      </div>`;
-    card.querySelector('.design-card-img').onclick = ()=>openLightbox(item.src, item.title, item.desc);
-    grid.appendChild(card);
+  designs.forEach(function(item, i){
+    grid.appendChild(designCardEl(item, i, inCollection));
   });
 }
 
+function designCardEl(item, i, inCollection){
+  const card = document.createElement('div');
+  card.className = 'design-card';
+  card.innerHTML = '<img class="design-card-img" src="'+item.src+'" alt="'+escapeHtml(item.title)+'">' +
+    '<div class="design-card-info">' +
+    '<h4>'+escapeHtml(item.title)+'</h4>' +
+    '<p>'+escapeHtml(item.desc)+'</p>' +
+    '<button class="design-card-move" onclick="openMoveModal('+i+', '+inCollection+')">Move</button>' +
+    '<button class="design-card-delete" onclick="deleteDesign('+i+', '+inCollection+')">Remove</button>' +
+    '</div>';
+  card.querySelector('.design-card-img').onclick = function(){ openLightbox(item.src, item.title, item.desc); };
+  return card;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : str;
+  return d.innerHTML;
+}
+
 function updateCounts(){
-  ['social','church','event'].forEach(c=>{
-    const n = cats[c].length;
+  ['social','church','event'].forEach(function(c){
+    const n = categoryTotal(c);
     document.getElementById(c+'-count').textContent = n+(n===1?' design':' designs');
   });
   updateSlideshows();
@@ -431,13 +616,13 @@ const slideshowState = {social:0, church:0, event:0};
 const slideshowTimers = {social:null, church:null, event:null};
 
 function updateSlideshows(){
-  ['social','church','event'].forEach(c=>{
+  ['social','church','event'].forEach(function(c){
     const bg = document.querySelector('.cat-bg.'+c);
     if(!bg) return;
     bg.querySelectorAll('.cat-slide-img').forEach(el=>el.remove());
-    const designs = cats[c];
+    const designs = allDesignsInCategory(c);
     if(designs.length === 0) return;
-    designs.forEach((item, i)=>{
+    designs.forEach(function(item, i){
       const img = document.createElement('img');
       img.className = 'cat-slide-img';
       img.src = item.src;
@@ -447,7 +632,7 @@ function updateSlideshows(){
     if(slideshowTimers[c]) clearInterval(slideshowTimers[c]);
     slideshowState[c] = 0;
     if(designs.length > 1){
-      slideshowTimers[c] = setInterval(()=>{
+      slideshowTimers[c] = setInterval(function(){
         const imgs = bg.querySelectorAll('.cat-slide-img');
         if(!imgs.length) return;
         imgs[slideshowState[c]].style.opacity = 0;
@@ -458,7 +643,7 @@ function updateSlideshows(){
   });
 }
 
-// ADD MODAL
+// ---- ADD DESIGN MODAL ----
 function openAddModal(){
   pendingImageSrc = null;
   pendingFile = null;
@@ -471,7 +656,7 @@ function openAddModal(){
 
 function closeAddModal(){
   document.getElementById('add-modal').classList.remove('open');
-  var saveBtn = document.querySelector('.modal-save');
+  var saveBtn = document.querySelector('#add-modal .modal-save');
   saveBtn.textContent = 'Save Design';
   saveBtn.disabled = false;
   pendingFile = null;
@@ -503,7 +688,7 @@ function saveDesign(){
   const title = document.getElementById('design-title').value.trim() || 'Untitled';
   const desc = document.getElementById('design-desc').value.trim() || '';
 
-  const saveBtn = document.querySelector('.modal-save');
+  const saveBtn = document.querySelector('#add-modal .modal-save');
   saveBtn.textContent = 'Uploading...';
   saveBtn.disabled = true;
 
@@ -519,9 +704,14 @@ function saveDesign(){
   .then(function(data){
     if(data.success && data.data && data.data.url){
       var imgUrl = data.data.display_url || (data.data.image ? data.data.image.url : data.data.url);
-      cats[currentCat].push({src: imgUrl, title: title, desc: desc});
+      var newItem = {src: imgUrl, title: title, desc: desc};
+      if(currentCollection !== null){
+        cats[currentCat].collections[currentCollection].designs.push(newItem);
+      } else {
+        cats[currentCat].loose.push(newItem);
+      }
       saveData();
-      renderGrid();
+      renderCategoryPage();
       updateCounts();
       closeAddModal();
       alert('Design added!');
@@ -539,11 +729,122 @@ function saveDesign(){
   });
 }
 
-function deleteDesign(i){
+function deleteDesign(i, inCollection){
   if(!confirm('Remove this design?')) return;
-  cats[currentCat].splice(i,1);
+  if(inCollection && currentCollection !== null){
+    cats[currentCat].collections[currentCollection].designs.splice(i,1);
+  } else {
+    cats[currentCat].loose.splice(i,1);
+  }
   saveData();
-  renderGrid();
+  renderCategoryPage();
+  updateCounts();
+}
+
+// ---- ADD COLLECTION MODAL ----
+function openAddCollectionModal(){
+  document.getElementById('collection-name').value = '';
+  document.getElementById('add-collection-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('collection-name').focus(), 100);
+}
+
+function closeAddCollectionModal(){
+  document.getElementById('add-collection-modal').classList.remove('open');
+}
+
+function saveCollection(){
+  const name = document.getElementById('collection-name').value.trim();
+  if(!name){ alert('Please enter a name for the collection.'); return; }
+  const id = 'c_' + Date.now();
+  cats[currentCat].collections[id] = {name: name, designs: []};
+  saveData();
+  closeAddCollectionModal();
+  renderCategoryPage();
+  updateCounts();
+}
+
+function deleteCollection(e, id){
+  e.stopPropagation();
+  const collection = cats[currentCat].collections[id];
+  if(!collection) return;
+  const msg = collection.designs.length > 0
+    ? 'Delete "'+collection.name+'" and its '+collection.designs.length+' design(s)? This can\'t be undone.'
+    : 'Delete collection "'+collection.name+'"?';
+  if(!confirm(msg)) return;
+  delete cats[currentCat].collections[id];
+  saveData();
+  renderCategoryPage();
+  updateCounts();
+}
+
+// ---- MOVE DESIGN MODAL ----
+let moveSourceIndex = null;
+let moveSourceCollectionId = null; // null = standalone
+
+function openMoveModal(i, inCollection){
+  moveSourceIndex = i;
+  moveSourceCollectionId = inCollection ? currentCollection : null;
+
+  const select = document.getElementById('move-target');
+  select.innerHTML = '';
+
+  const standaloneOpt = document.createElement('option');
+  standaloneOpt.value = '';
+  standaloneOpt.textContent = 'Standalone (no collection)';
+  if(moveSourceCollectionId === null) standaloneOpt.disabled = true;
+  select.appendChild(standaloneOpt);
+
+  const collections = cats[currentCat].collections;
+  Object.keys(collections).forEach(function(id){
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = collections[id].name;
+    if(id === moveSourceCollectionId) opt.disabled = true;
+    select.appendChild(opt);
+  });
+
+  // select first non-disabled option by default
+  for(let j=0;j<select.options.length;j++){
+    if(!select.options[j].disabled){ select.selectedIndex = j; break; }
+  }
+
+  document.getElementById('move-modal').classList.add('open');
+}
+
+function closeMoveModal(){
+  document.getElementById('move-modal').classList.remove('open');
+  moveSourceIndex = null;
+  moveSourceCollectionId = null;
+}
+
+function doMove(){
+  if(moveSourceIndex === null){ closeMoveModal(); return; }
+  const target = document.getElementById('move-target').value; // '' = standalone, else collection id
+  const cat = cats[currentCat];
+
+  const sourceArr = moveSourceCollectionId !== null
+    ? cat.collections[moveSourceCollectionId].designs
+    : cat.loose;
+
+  const item = sourceArr[moveSourceIndex];
+  if(!item){ closeMoveModal(); return; }
+
+  sourceArr.splice(moveSourceIndex, 1);
+
+  if(target === ''){
+    cat.loose.push(item);
+  } else if(cat.collections[target]){
+    cat.collections[target].designs.push(item);
+  } else {
+    // target no longer exists, put it back
+    sourceArr.splice(moveSourceIndex, 0, item);
+    closeMoveModal();
+    return;
+  }
+
+  saveData();
+  closeMoveModal();
+  renderCategoryPage();
   updateCounts();
 }
 
@@ -580,6 +881,9 @@ function doLogin(){
     document.getElementById('login-btn-home').onclick = doLogout;
     document.getElementById('upload-photo-btn').style.display = 'inline-block';
     updateCounts();
+    if(document.getElementById('page-category').classList.contains('active')){
+      renderCategoryPage();
+    }
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
@@ -590,6 +894,9 @@ function doLogout(){
   document.getElementById('login-btn-home').textContent = 'Admin';
   document.getElementById('login-btn-home').onclick = openLogin;
   document.getElementById('upload-photo-btn').style.display = 'none';
+  if(document.getElementById('page-category').classList.contains('active')){
+    renderCategoryPage();
+  }
 }
 
 // Profile photo — load from GitHub repo if exists
@@ -603,6 +910,10 @@ fetch('photo.jpg').then(r => {
 
 document.getElementById('login-modal').onclick = function(e){
   if(e.target===this) this.classList.remove('open');
+};
+
+document.getElementById('move-modal').onclick = function(e){
+  if(e.target===this) closeMoveModal();
 };
 
 updateCounts();
