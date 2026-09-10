@@ -47,6 +47,7 @@ nav ul a:hover{color:var(--pink)}
 .cat-bg.social{background:linear-gradient(145deg,#ffd6e7,#ffb3d1,#ff8fb8,#e8567a)}
 .cat-bg.church{background:linear-gradient(145deg,#c8d8ff,#a0bcff,#6e96f7,#3a66e0)}
 .cat-bg.event{background:linear-gradient(145deg,#ffe0b2,#ffcc80,#ffa726,#e8820a)}
+.cat-bg.uiux{background:linear-gradient(145deg,#dcd4ff,#b7a3ff,#8b6bff,#5a2fe0)}
 .cat-bg img.cat-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .cat-info{position:relative;z-index:2}
 .cat-info .cat-tag{font-size:0.68rem;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.4rem;font-weight:500}
@@ -104,6 +105,8 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 .design-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.07);transition:transform 0.25s,box-shadow 0.25s;position:relative}
 .design-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(0,0,0,0.12)}
 .design-card-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;cursor:pointer}
+.design-card-embed{width:100%;aspect-ratio:3/4;overflow:hidden;background:#f4f1ea}
+.design-card-embed iframe{width:100%;height:100%;border:none;display:block}
 .design-card-info{padding:1rem 1.1rem 1.1rem}
 .design-card-info h4{font-size:0.92rem;color:var(--blue);font-weight:500;margin-bottom:0.3rem}
 .design-card-info p{font-size:0.8rem;color:var(--muted);line-height:1.5}
@@ -111,6 +114,7 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
 .admin-mode .design-card-delete{display:inline-block}
 .design-card-move{display:none;margin-top:0.75rem;background:none;border:1px solid #cfd8ee;color:var(--blue);padding:4px 12px;border-radius:20px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif}
 .admin-mode .design-card-move{display:inline-block}
+.design-card-link{display:inline-block;margin-top:0.75rem;margin-right:0.5rem;background:#5a2fe0;color:#fff;padding:6px 14px;border-radius:20px;font-size:0.75rem;text-decoration:none;font-family:'DM Sans',sans-serif}
 
 /* COLLECTION (folder) CARDS */
 .collection-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 3px 16px rgba(0,0,0,0.07);transition:transform 0.25s,box-shadow 0.25s;cursor:pointer;position:relative}
@@ -193,13 +197,15 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
   <div class="modal">
     <h3>Add a Design</h3>
     <div class="modal-upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
-      Click to upload your design image
+      Click to upload a screenshot (optional if you add a link below)
     </div>
     <img class="modal-img-preview" id="img-preview" src="" alt="">
     <label>Title</label>
     <input type="text" id="design-title" placeholder="e.g. Mamas & Minis Conference">
     <label>Description</label>
     <textarea id="design-desc" placeholder="e.g. Event flyer for Ruach Teens, August 2026"></textarea>
+    <label>Prototype / project link (optional)</label>
+    <input type="url" id="design-link" placeholder="https://www.figma.com/proto/...">
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeAddModal()">Cancel</button>
       <button class="modal-save" onclick="saveDesign()">Save Design</button>
@@ -302,6 +308,16 @@ footer{border-top:1px solid #ece5dd;padding:1.75rem 6%;text-align:center;font-si
         </div>
       </div>
     </div>
+    <div class="cat-card" onclick="openCategory('uiux')">
+      <div class="cat-bg uiux">
+        <div class="cat-arrow">→</div>
+        <div class="cat-info">
+          <p class="cat-tag">Category</p>
+          <h3>UI /<br>UX</h3>
+          <p class="cat-count" id="uiux-count">0 designs</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="about-strip" id="about-sec">
@@ -386,9 +402,10 @@ const ADMIN_PASSWORD = 'akere2026';
 const cats = {
   social: {loose:[], collections:{}},
   church: {loose:[], collections:{}},
-  event:  {loose:[], collections:{}}
+  event:  {loose:[], collections:{}},
+  uiux:   {loose:[], collections:{}}
 };
-const catLabels = {social:'Social Media',church:'Church',event:'Event'};
+const catLabels = {social:'Social Media',church:'Church',event:'Event',uiux:'UI / UX'};
 let currentCat = 'social';
 let currentCollection = null; // null = category root view
 let isAdmin = false;
@@ -400,7 +417,7 @@ function loadData(){
   .then(function(res){ return res.json(); })
   .then(function(data){
     if(data){
-      ['social','church','event'].forEach(function(c){
+      ['social','church','event','uiux'].forEach(function(c){
         const d = data[c];
         if(Array.isArray(d)){
           // migrate old flat-array format into the new structure
@@ -514,7 +531,8 @@ function renderCategoryPage(){
         const c = col.collections[id];
         const card = document.createElement('div');
         card.className = 'collection-card' + (admin ? ' admin-mode' : '');
-        const cover = c.designs.length ? '<img src="'+c.designs[0].src+'" alt="">' : '<span class="folder-emoji">📁</span>';
+        const firstWithSrc = c.designs.find(function(d){ return d.src; });
+        const cover = firstWithSrc ? '<img src="'+firstWithSrc.src+'" alt="">' : '<span class="folder-emoji">📁</span>';
         card.innerHTML = '<div class="collection-thumb">'+cover+'</div>' +
           '<div class="collection-card-info">' +
           '<h4>'+escapeHtml(c.name)+'</h4>' +
@@ -586,14 +604,20 @@ function renderDesignsGrid(designs, inCollection){
 function designCardEl(item, i, inCollection){
   const card = document.createElement('div');
   card.className = 'design-card';
-  card.innerHTML = '<img class="design-card-img" src="'+item.src+'" alt="'+escapeHtml(item.title)+'">' +
+  const linkBtn = item.link ? '<a class="design-card-link" href="'+escapeHtml(item.link)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open in Figma ↗</a>' : '';
+  const mediaHtml = (item.embed && item.link)
+    ? '<div class="design-card-embed"><iframe src="https://www.figma.com/embed?embed_host=share&url='+encodeURIComponent(item.link)+'" allowfullscreen loading="lazy"></iframe></div>'
+    : '<img class="design-card-img" src="'+item.src+'" alt="'+escapeHtml(item.title)+'">';
+  card.innerHTML = mediaHtml +
     '<div class="design-card-info">' +
     '<h4>'+escapeHtml(item.title)+'</h4>' +
     '<p>'+escapeHtml(item.desc)+'</p>' +
+    linkBtn +
     '<button class="design-card-move" onclick="openMoveModal('+i+', '+inCollection+')">Move</button>' +
     '<button class="design-card-delete" onclick="deleteDesign('+i+', '+inCollection+')">Remove</button>' +
     '</div>';
-  card.querySelector('.design-card-img').onclick = function(){ openLightbox(item.src, item.title, item.desc); };
+  const imgEl = card.querySelector('.design-card-img');
+  if(imgEl) imgEl.onclick = function(){ openLightbox(item.src, item.title, item.desc, item.link, item.embed); };
   return card;
 }
 
@@ -604,7 +628,7 @@ function escapeHtml(str){
 }
 
 function updateCounts(){
-  ['social','church','event'].forEach(function(c){
+  ['social','church','event','uiux'].forEach(function(c){
     const n = categoryTotal(c);
     document.getElementById(c+'-count').textContent = n+(n===1?' design':' designs');
   });
@@ -612,15 +636,15 @@ function updateCounts(){
 }
 
 // SLIDESHOWS
-const slideshowState = {social:0, church:0, event:0};
-const slideshowTimers = {social:null, church:null, event:null};
+const slideshowState = {social:0, church:0, event:0, uiux:0};
+const slideshowTimers = {social:null, church:null, event:null, uiux:null};
 
 function updateSlideshows(){
-  ['social','church','event'].forEach(function(c){
+  ['social','church','event','uiux'].forEach(function(c){
     const bg = document.querySelector('.cat-bg.'+c);
     if(!bg) return;
     bg.querySelectorAll('.cat-slide-img').forEach(el=>el.remove());
-    const designs = allDesignsInCategory(c);
+    const designs = allDesignsInCategory(c).filter(function(d){ return d.src; });
     if(designs.length === 0) return;
     designs.forEach(function(item, i){
       const img = document.createElement('img');
@@ -649,6 +673,7 @@ function openAddModal(){
   pendingFile = null;
   document.getElementById('design-title').value = '';
   document.getElementById('design-desc').value = '';
+  document.getElementById('design-link').value = '';
   document.getElementById('img-preview').style.display = 'none';
   document.getElementById('upload-area').style.display = 'block';
   document.getElementById('add-modal').classList.add('open');
@@ -684,9 +709,33 @@ document.getElementById('file-input').onchange = function(e){
 document.getElementById('upload-area').onclick = ()=>document.getElementById('file-input').click();
 
 function saveDesign(){
-  if(!pendingFile){alert('Please select an image first.');return;}
   const title = document.getElementById('design-title').value.trim() || 'Untitled';
   const desc = document.getElementById('design-desc').value.trim() || '';
+  const link = document.getElementById('design-link').value.trim() || '';
+
+  if(!pendingFile && !link){
+    alert('Add a screenshot or a design/prototype link.');
+    return;
+  }
+
+  function finishSave(newItem){
+    if(currentCollection !== null){
+      cats[currentCat].collections[currentCollection].designs.push(newItem);
+    } else {
+      cats[currentCat].loose.push(newItem);
+    }
+    saveData();
+    renderCategoryPage();
+    updateCounts();
+    closeAddModal();
+    alert('Design added!');
+  }
+
+  // Link-only entry: no screenshot needed, overview renders the live embed
+  if(!pendingFile && link){
+    finishSave({src: '', title: title, desc: desc, link: link, embed: true});
+    return;
+  }
 
   const saveBtn = document.querySelector('#add-modal .modal-save');
   saveBtn.textContent = 'Uploading...';
@@ -704,17 +753,7 @@ function saveDesign(){
   .then(function(data){
     if(data.success && data.data && data.data.url){
       var imgUrl = data.data.display_url || (data.data.image ? data.data.image.url : data.data.url);
-      var newItem = {src: imgUrl, title: title, desc: desc};
-      if(currentCollection !== null){
-        cats[currentCat].collections[currentCollection].designs.push(newItem);
-      } else {
-        cats[currentCat].loose.push(newItem);
-      }
-      saveData();
-      renderCategoryPage();
-      updateCounts();
-      closeAddModal();
-      alert('Design added!');
+      finishSave({src: imgUrl, title: title, desc: desc, link: link, embed: false});
     } else {
       var errMsg = data.error ? data.error.message : JSON.stringify(data);
       alert('Upload failed: ' + errMsg);
@@ -849,10 +888,38 @@ function doMove(){
 }
 
 // LIGHTBOX
-function openLightbox(src, title, desc){
-  document.getElementById('lightbox-img').src = src;
+function openLightbox(src, title, desc, link, embed){
+  const lightboxImg = document.getElementById('lightbox-img');
+  var existingEmbed = document.getElementById('lightbox-embed');
+  if(existingEmbed) existingEmbed.remove();
+  if(embed && link){
+    lightboxImg.style.display = 'none';
+    var iframe = document.createElement('iframe');
+    iframe.id = 'lightbox-embed';
+    iframe.src = 'https://www.figma.com/embed?embed_host=share&url=' + encodeURIComponent(link);
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = 'width:min(90vw,1000px);height:min(80vh,700px);border:none;border-radius:10px;';
+    lightboxImg.parentNode.insertBefore(iframe, lightboxImg);
+  } else {
+    lightboxImg.style.display = 'block';
+    lightboxImg.src = src;
+  }
   document.getElementById('lightbox-title').textContent = title;
   document.getElementById('lightbox-desc').textContent = desc;
+  var existingLink = document.getElementById('lightbox-link');
+  if(existingLink) existingLink.remove();
+  if(link){
+    var a = document.createElement('a');
+    a.id = 'lightbox-link';
+    a.href = link;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'design-card-link';
+    a.textContent = 'Open in Figma ↗';
+    a.style.marginTop = '0.75rem';
+    a.style.display = 'inline-block';
+    document.querySelector('.lightbox-caption').appendChild(a);
+  }
   document.getElementById('lightbox').classList.add('open');
 }
 
