@@ -425,6 +425,12 @@ const ADMIN_UID = "zpL3fZ12pnMPIIi4hgGrxCCepXf2";
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+
+// Keep the admin login only for the current page session.
+// Refreshing the page will require the admin to log in again.
+const authReady = auth.setPersistence(firebase.auth.Auth.Persistence.NONE)
+  .then(function(){ return auth.signOut(); })
+  .catch(function(error){ console.log('Auth setup error:', error); });
 // --------------------------
 
 // Data model per category: { loose: [designs...], collections: { id: {name, designs:[...]} } }
@@ -1000,6 +1006,7 @@ async function doLogin(){
   }
 
   try {
+    await authReady;
     const result = await auth.signInWithEmailAndPassword(ADMIN_EMAIL, pass);
 
     if(result.user.uid !== ADMIN_UID){
@@ -1044,7 +1051,10 @@ async function doLogout(){
 }
 
 auth.onAuthStateChanged(function(user){
-  if(user && user.uid === ADMIN_UID){
+  // Wait for the non-persistent auth setup before updating the UI.
+  authReady.then(function(){
+    const currentUser = auth.currentUser;
+    if(currentUser && currentUser.uid === ADMIN_UID){
     isAdmin = true;
     document.getElementById('login-btn-home').textContent = 'Logout';
     document.getElementById('login-btn-home').onclick = doLogout;
@@ -1058,9 +1068,10 @@ auth.onAuthStateChanged(function(user){
 
   updateCounts();
 
-  if(document.getElementById('page-category').classList.contains('active')){
-    renderCategoryPage();
-  }
+    if(document.getElementById('page-category').classList.contains('active')){
+      renderCategoryPage();
+    }
+  });
 });
 
 // Profile photo — load from GitHub repo if exists
