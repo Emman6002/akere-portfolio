@@ -447,18 +447,53 @@ let isAdmin = false;
 let pendingImageSrc = null;
 let pendingFile = null;
 
+// Defensive data readers. These normalize data in memory for rendering only;
+// they do not write anything back to Firebase or delete stored designs.
+function safeDesignList(value){
+  if(Array.isArray(value)){
+    return value.filter(function(item){ return item && typeof item === 'object'; });
+  }
+  if(value && typeof value === 'object'){
+    return Object.keys(value).sort().map(function(key){ return value[key]; })
+      .filter(function(item){ return item && typeof item === 'object'; });
+  }
+  return [];
+}
+
+function safeCategory(value){
+  if(Array.isArray(value)){
+    return {loose: safeDesignList(value), collections: {}};
+  }
+  const source = value && typeof value === 'object' ? value : {};
+  const rawCollections = source.collections && typeof source.collections === 'object'
+    ? source.collections : {};
+  const collections = {};
+  Object.keys(rawCollections).forEach(function(id){
+    const item = rawCollections[id];
+    if(!item || typeof item !== 'object') return;
+    collections[id] = Object.assign({}, item, {
+      name: typeof item.name === 'string' && item.name.trim()
+        ? item.name : 'Untitled collection',
+      designs: safeDesignList(item.designs)
+    });
+  });
+  return Object.assign({}, source, {
+    loose: safeDesignList(source.loose),
+    collections: collections
+  });
+}
+
 function loadData(){
   fetch('https://akere-portfolio-default-rtdb.firebaseio.com/designs.json')
-  .then(function(res){ return res.json(); })
+  .then(function(res){
+    if(!res.ok) throw new Error('Firebase returned HTTP ' + res.status);
+    return res.json();
+  })
   .then(function(data){
-    if(data){
+    if(data && typeof data === 'object'){
       ['social','church','event','uiux'].forEach(function(c){
-        const d = data[c];
-        if(Array.isArray(d)){
-          // migrate old flat-array format into the new structure
-          cats[c] = {loose: d, collections: {}};
-        } else if(d && typeof d === 'object'){
-          cats[c] = {loose: d.loose || [], collections: d.collections || {}};
+        if(Object.prototype.hasOwnProperty.call(data, c)){
+          cats[c] = safeCategory(data[c]);
         }
       });
     }
@@ -467,7 +502,10 @@ function loadData(){
       renderCategoryPage();
     }
   })
-  .catch(function(e){ console.log('Load error:', e); });
+  .catch(function(e){
+    console.log('Load error:', e);
+    updateCounts();
+  });
 }
 
 async function saveData(){
@@ -536,9 +574,11 @@ function openCollection(id){
 
 // ---- Helpers over the nested data ----
 function allDesignsInCategory(cat){
-  const c = cats[cat];
-  let all = c.loose.slice();
-  Object.values(c.collections).forEach(function(col){ all = all.concat(col.designs); });
+  const c = safeCategory(cats[cat]);
+  let all = safeDesignList(c.loose).slice();
+  Object.values(c.collections).forEach(function(col){
+    all = all.concat(safeDesignList(col && col.designs));
+  });
   return all;
 }
 
@@ -572,7 +612,8 @@ function renderCategoryPage(){
       '<button class="add-design-btn add-folder-btn" onclick="openAddCollectionModal()">+ New Collection</button>' +
       '<span style="font-size:0.8rem;color:var(--muted)">You are in admin mode — only you can see this bar.</span>' : '';
 
-    const col = cats[currentCat];
+    const col = safeCategory(cats[currentCat]);
+    cats[currentCat] = col;
     const ids = Object.keys(col.collections);
 
     if(ids.length === 0){
@@ -587,12 +628,13 @@ function renderCategoryPage(){
         const c = col.collections[id];
         const card = document.createElement('div');
         card.className = 'collection-card' + (admin ? ' admin-mode' : '');
-        const firstWithSrc = c.designs.find(function(d){ return d.src; });
+        const collectionDesigns = safeDesignList(c.designs);
+        const firstWithSrc = collectionDesigns.find(function(d){ return typeof d.src === 'string' && d.src; });
         const cover = firstWithSrc ? '<img src="'+firstWithSrc.src+'" alt="">' : '<span class="folder-emoji">📁</span>';
         card.innerHTML = '<div class="collection-thumb">'+cover+'</div>' +
           '<div class="collection-card-info">' +
           '<h4>'+escapeHtml(c.name)+'</h4>' +
-          '<p>'+c.designs.length+(c.designs.length===1?' design':' designs')+'</p>' +
+          '<p>'+collectionDesigns.length+(collectionDesigns.length===1?' design':' designs')+'</p>' +
           '<button class="collection-card-delete" onclick="deleteCollection(event,\''+id+'\')">Remove collection</button>' +
           '</div>';
         card.addEventListener('click', function(e){
@@ -609,8 +651,11 @@ function renderCategoryPage(){
 
   } else {
     // COLLECTION VIEW: show only that collection's designs
+    cats[currentCat] = safeCategory(cats[currentCat]);
     const collection = cats[currentCat].collections[currentCollection];
     if(!collection){ currentCollection = null; renderCategoryPage(); return; }
+    collection.designs = safeDesignList(collection.designs);
+    collection.name = typeof collection.name === 'string' ? collection.name : 'Untitled collection';
 
     document.getElementById('cat-title').textContent = collection.name;
     breadcrumb.innerHTML = '<a onclick="handleBack()">'+name+'</a> / '+escapeHtml(collection.name);
@@ -633,8 +678,8 @@ function renderCategoryPage(){
 function renderDesignsGrid(designs, inCollection){
   const grid = document.getElementById('designs-grid');
   grid.className = 'designs-grid' + (isAdmin ? ' admin-mode' : '');
-
-  const nothingAtAll = designs.length === 0 && (currentCollection !== null || Object.keys(cats[currentCat].collections).length === 0);
+  designs = safeDesignList(designs);
+  cats[currentCat] = safeCategory(cats[currentCat]);
 
   if(designs.length === 0){
     if(currentCollection !== null){
@@ -805,20 +850,31 @@ function saveDesign(){
     method: 'POST',
     body: formData
   })
-  .then(function(res){ return res.json(); })
+  .then(async function(res){
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch(parseError) {
+      throw new Error('The image host returned an unreadable response. Your existing portfolio data has not been changed.');
+    }
+    if(!res.ok && !data.error){
+      throw new Error('The image host returned HTTP ' + res.status + '. Your existing portfolio data has not been changed.');
+    }
+    return data;
+  })
   .then(function(data){
-    if(data.success && data.data && data.data.url){
+    if(data && data.success && data.data && (data.data.url || data.data.display_url)){
       var imgUrl = data.data.display_url || (data.data.image ? data.data.image.url : data.data.url);
       finishSave({src: imgUrl, title: title, desc: desc, link: link, embed: false});
     } else {
-      var errMsg = data.error ? data.error.message : JSON.stringify(data);
-      alert('Upload failed: ' + errMsg);
+      var errMsg = data && data.error ? data.error.message : 'The image host did not accept this upload.';
+      alert('Upload failed: ' + errMsg + '\nYour existing portfolio designs have not been changed.');
       saveBtn.textContent = 'Save Design';
       saveBtn.disabled = false;
     }
   })
   .catch(function(e){
-    alert('Error: ' + e.message);
+    alert('Upload failed: ' + e.message);
     saveBtn.textContent = 'Save Design';
     saveBtn.disabled = false;
   });
